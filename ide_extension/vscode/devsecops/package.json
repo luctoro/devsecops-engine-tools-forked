@@ -14,7 +14,7 @@
   "activationEvents": [
     "onView:devsecops",
     "onCommand:devsecops.iacScan",
-    "onCommand:devsecops.imageScan",
+    "onCommand:devsecops.imageScan"
   ],
   "main": "./out/extension.js",
   "contributes": {
