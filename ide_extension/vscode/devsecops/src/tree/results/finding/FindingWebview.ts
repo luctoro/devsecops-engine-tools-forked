@@ -14,9 +14,9 @@ export function showVulnContextWebview(finding: Finding): void {
     } else {
         vulnPanel = vscode.window.createWebviewPanel(
             'vulnContext',
-            `Vulnerability: ${finding.getId()}`,
+            `Finding: ${finding.getId()}`,
             vscode.ViewColumn.Beside,
-            { enableScripts: true }
+            { enableScripts: true, retainContextWhenHidden: true }
         );
          vulnPanel.webview.html = findingDetailWebview(finding);
 
@@ -39,6 +39,9 @@ export function showVulnContextWebview(finding: Finding): void {
         });
     }
 }
+
+// Generic alias for all practices
+export const showGeneralFindingWebview = showVulnContextWebview;
 
 export function disposeVulnPanel(): void {
     [vulnPanel, editorListener, workspaceListener].forEach(listener => {

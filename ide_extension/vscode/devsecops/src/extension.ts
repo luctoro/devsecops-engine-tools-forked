@@ -7,7 +7,7 @@ import { SecurityCodeActionProvider } from "./actions/SecurityCodeActionProvider
 import { registerImageScanCommand } from "./commands/ImageScanCommand";
 import { registerDependenciesScanCommand } from "./commands/DependenciesScanCommand";
 import { registerCopilotCommands } from "./commands/copilotCommands";
-import { showVulnContextWebview, disposeVulnPanel } from './tree/results/finding/FindingImageScan';
+import { showVulnContextWebview, disposeVulnPanel, showGeneralFindingWebview } from './tree/results/finding/FindingWebview';
 
 export function activate(context: vscode.ExtensionContext): void {
 
@@ -48,12 +48,22 @@ export function activate(context: vscode.ExtensionContext): void {
       showVulnContextWebview(finding);
     }
   );
+
+  const showGeneralFindingWebviewDisposable = vscode.commands.registerCommand(
+    "devsecops.showGeneralFindingWebview",
+    (findingItem: any) => {
+      // Extract the Finding object from FindingItem if needed
+      const finding = findingItem.finding ?? findingItem;
+      showGeneralFindingWebview(finding);
+    }
+  );
   context.subscriptions.push(iacScanDisposable);
   context.subscriptions.push(imageScanDisposable);
   context.subscriptions.push(dependenciesScanDisposable);
   context.subscriptions.push(openWithDiagnosticDisposable);
   context.subscriptions.push(codeActionProvider);
   context.subscriptions.push(showVulnContextDisposable);
+  context.subscriptions.push(showGeneralFindingWebviewDisposable);
 
   
   context.subscriptions.push({

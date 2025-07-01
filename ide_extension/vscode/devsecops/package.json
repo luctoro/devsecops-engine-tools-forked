@@ -148,6 +148,10 @@
       {
         "command": "devsecops.explainWithCopilot",
         "title": "Explain Security Issue with GitHub Copilot"
+      },
+      {
+        "command": "devsecops.showGeneralFindingWebview",
+        "title": "Show Finding Details"
       }
     ],
     "menus": {
@@ -166,6 +170,18 @@
           "command": "devsecops.dependenciesScan",
           "when": "view == devsecopsView",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "devsecops.showGeneralFindingWebview",
+          "when": "view == devsecops && viewItem == engine_iac",
+          "group": "inline"
+        },
+        {
+          "command": "devsecops.showGeneralFindingWebview",
+          "when": "view == devsecops && viewItem == engine_secrets",
+          "group": "inline"
         }
       ]
     }

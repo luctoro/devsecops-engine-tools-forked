@@ -1,6 +1,24 @@
 import { Finding } from "../../../domain/model/Finding";
 
 export function findingDetailWebview(finding: Finding): string {
+    // Add safety checks
+    if (!finding || typeof finding.getSeverity !== 'function') {
+        console.error('Invalid finding object passed to findingDetailWebview:', finding);
+        return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>body { font-family: sans-serif; padding: 1.5em; color: #fff; }</style>
+</head>
+<body>
+    <h1>Error</h1>
+    <p>Invalid finding object. Please try again.</p>
+</body>
+</html>
+        `;
+    }
+
     const severity = (finding.getSeverity() || "unknown").toLowerCase();
     let codicon = "codicon-warning";
     let color = "#cca700";
@@ -110,18 +128,17 @@ export function findingDetailWebview(finding: Finding): string {
         ${scanInfoRow("Tool", finding.getTool())}
         ${
             finding.getAllAdditionalFields() && Object.keys(finding.getAllAdditionalFields()).length > 0
-            ? `${Object.entries(finding.getAllAdditionalFields() || {}).map(([key, value]) => scanInfoRow(key, value)).join("")}`
-            : "<p>No additional fields available.</p>"
+            ? Object.entries(finding.getAllAdditionalFields() || {}).map(([key, value]) => scanInfoRow(key, value)).join("")
+            : ""
         }
     </div>
     <div class="section" id="remSection">
         <h3>References</h3>
-${
+        ${
             finding.getReferences() && finding.getReferences().length > 0
                 ? `<ul>${finding.getReferences().map((ref: string) => `<li><a href="${ref}" target="_blank">${ref}</a></li>`).join("")}</ul>`
-                : "<p>No remediation info available.</p>"
+                : "<p>No references available.</p>"
         }
- 
     </div>
     <script>
         const descTab = document.getElementById('descTab');

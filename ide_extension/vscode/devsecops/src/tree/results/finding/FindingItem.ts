@@ -26,15 +26,21 @@ export class FindingItem extends vscode.TreeItem {
       severityIcons[finding.getSeverity().toLowerCase()] ||
       new vscode.ThemeIcon("error", new vscode.ThemeColor("errorForeground"));
 
-    this.command = {
-      command: "devsecops.showVulnContext",
-      title: "Show Vulnerability Context",
-      arguments: [finding], // Pass the full finding/context object
-    };
+    // Set context value based on module for right-click menu
+    this.contextValue = finding.getModule();
 
     const fileInfo = this.extractFileInfo(finding.getWhere());
     
-    if (fileInfo.filePath && ["engine_iac"].includes(finding.getModule())) {
+    // Configure commands based on module type
+    if (["engine_container", "engine_dependencies"].includes(finding.getModule())) {
+      // Left click opens webview for container and dependencies
+      this.command = {
+        command: "devsecops.showVulnContext",
+        title: "Show Vulnerability Context",
+        arguments: [finding],
+      };
+    } else if (fileInfo.filePath && ["engine_iac", "engine_secrets"].includes(finding.getModule())) {
+      // Left click opens file for IaC and secrets (original behavior)
       this.command = {
         title: "Open File",
         command: "devsecops.openWithDiagnostic",
@@ -44,6 +50,13 @@ export class FindingItem extends vscode.TreeItem {
           fileInfo.lineNumber || 1,
           fileInfo.lineNumberEnd || fileInfo.lineNumber || 1,
         ],
+      };
+    } else {
+      // Fallback to webview for unknown modules
+      this.command = {
+        command: "devsecops.showVulnContext",
+        title: "Show Vulnerability Context",
+        arguments: [finding],
       };
     }
   }
