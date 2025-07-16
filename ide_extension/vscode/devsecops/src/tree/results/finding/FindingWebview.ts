@@ -2,41 +2,28 @@ import * as vscode from 'vscode';
 import { findingDetailWebview } from './FindingDetail';
 import { Finding } from "../../../domain/model/Finding";
 
-let vulnPanel: vscode.WebviewPanel | undefined;
-let editorListener: vscode.Disposable | undefined;
-let workspaceListener: vscode.Disposable | undefined;
+let vulnPanels: Map<string, vscode.WebviewPanel> = new Map();
 
 export function showVulnContextWebview(finding: Finding): void {
+    const panelId = `vulnContext-${finding.getId()}-${new Date().getTime()}`;
 
-    if (vulnPanel) {
-        vulnPanel.webview.html = findingDetailWebview(finding);
-        vulnPanel.reveal(vscode.ViewColumn.Beside);
+    if (vulnPanels.has(panelId)) {
+        const existingPanel = vulnPanels.get(panelId);
+        existingPanel?.reveal(vscode.ViewColumn.Beside);
     } else {
-        vulnPanel = vscode.window.createWebviewPanel(
+        const vulnPanel = vscode.window.createWebviewPanel(
             'vulnContext',
             `Finding: ${finding.getId()}`,
             vscode.ViewColumn.Beside,
             { enableScripts: true, retainContextWhenHidden: true }
         );
-         vulnPanel.webview.html = findingDetailWebview(finding);
+        vulnPanel.webview.html = findingDetailWebview(finding);
 
         vulnPanel.onDidDispose(() => {
-            disposeVulnPanel();
+            vulnPanels.delete(panelId);
         });
 
-        // Listen for editor changes and close the webview if no editors are open
-        editorListener = vscode.window.onDidChangeVisibleTextEditors(editors => {
-            if (editors.length === 0 && vulnPanel) {
-                vulnPanel.dispose();
-            }
-        });
-
-        // Listen for workspace changes and close the webview
-        workspaceListener = vscode.workspace.onDidChangeWorkspaceFolders(() => {
-            if (vulnPanel) {
-                vulnPanel.dispose();
-            }
-        });
+        vulnPanels.set(panelId, vulnPanel);
     }
 }
 
@@ -44,11 +31,9 @@ export function showVulnContextWebview(finding: Finding): void {
 export const showGeneralFindingWebview = showVulnContextWebview;
 
 export function disposeVulnPanel(): void {
-    [vulnPanel, editorListener, workspaceListener].forEach(listener => {
-        listener?.dispose?.();
+    vulnPanels.forEach(panel => {
+        panel.dispose();
     });
-    vulnPanel = undefined;
-    editorListener = undefined;
-    workspaceListener = undefined;
+    vulnPanels.clear();
 }
 
