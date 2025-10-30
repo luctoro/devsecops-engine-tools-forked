@@ -45,7 +45,7 @@ export class ImageScanner implements IScannerGateway {
         );
 
         if (!scannerImageAvailable) {
-          this.metricsHelper.captureLog(outputChannel, "Failed to ensure scanner image is available. Aborting scan.");
+          this.metricsHelper.captureLog(outputChannel, "❌ Failed to ensure scanner image is available. Please verify that the specified image version exists");
           resolve(new ScannerRes(false, [], null));
           return;
         }
