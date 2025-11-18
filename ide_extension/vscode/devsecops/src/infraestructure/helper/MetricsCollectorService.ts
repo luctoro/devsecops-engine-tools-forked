@@ -10,7 +10,9 @@ export class MetricsCollectorService {
         const scanStatus = ScanStatusService.determineScanStatus(
             input.scan_success,
             input.findings.length,
-            hasLogErrors
+            hasLogErrors,
+            input.output_logs,
+            input.exception_message
         );
         const exceptionLog = LogAnalysisService.extractExceptionMessage(
             input.output_logs,
@@ -34,6 +36,18 @@ export class MetricsCollectorService {
             exception_log: exceptionLog,
             scan_status: scanStatus
         };
+
+        // Debug logging for testing - shows complete metrics structure
+        console.log('📊 [DEBUG] Complete Metrics Data Structure:');
+        console.log('═'.repeat(60));
+        console.log(JSON.stringify(metricsData, null, 2));
+        console.log('═'.repeat(60));
+        console.log(`🔍 Enhanced scan_status: "${scanStatus}" (was previously just "Error")`);
+        console.log(`📝 Input logs count: ${input.output_logs?.length || 0}`);
+        console.log(`📋 Input logs content: ${JSON.stringify(input.output_logs || [], null, 2)}`);
+        console.log(`⚠️  Error logs detected: ${LogAnalysisService.hasErrors(input.output_logs || [])}`);
+        console.log(`🔍 Error messages found: ${JSON.stringify(LogAnalysisService.getErrorMessages(input.output_logs || []))}`);
+        console.log('═'.repeat(60));
 
         return metricsData;
     }

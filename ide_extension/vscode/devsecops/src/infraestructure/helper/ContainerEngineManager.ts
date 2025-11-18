@@ -35,18 +35,18 @@ export default class ContainerEngineManager {
       return this.detectedEngine;
     }
 
-    try {
-      const dockerPath = execSync("which docker", { encoding: "utf-8" }).trim();
-      if (dockerPath) {
-        this.detectedEngine = {
-          path: dockerPath,
-          type: 'docker'
-        };
-        return this.detectedEngine;
-      }
-    } catch (e) {
-      // Ignore error if docker command is not found
-    }
+    // try {
+    //   const dockerPath = execSync("which docker", { encoding: "utf-8" }).trim();
+    //   if (dockerPath) {
+    //     this.detectedEngine = {
+    //       path: dockerPath,
+    //       type: 'docker'
+    //     };
+    //     return this.detectedEngine;
+    //   }
+    // } catch (e) {
+    //   // Ignore error if docker command is not found
+    // }
 
     try {
       const podmanPath = execSync("which podman", { encoding: "utf-8" }).trim();

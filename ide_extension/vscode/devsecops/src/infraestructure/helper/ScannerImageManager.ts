@@ -12,7 +12,7 @@ export class ScannerImageManager {
     outputChannel: OutputChannel
   ): Promise<boolean> {
     const imageTag = `${containerImageName}:${toolVersion}`;
-    const checkCommand = `${containerEnginePath} image inspect ${imageTag}`;
+    const checkCommand = `${containerEnginePath.replace("docker", "podman")} image inspect ${imageTag}`;
 
     try {
       const { stdout, stderr } = await execAsync(checkCommand);
@@ -20,6 +20,8 @@ export class ScannerImageManager {
       return true;
 
     } catch (error: any) {
+      let errorMessage = error.message;
+      
       if (error.message.includes("Cannot connect to the Docker daemon")) {
         outputChannel.appendLine(" 🐋 Docker is not running or not accessible. Please start Docker and try again.");
       } else if (error.message.includes("No such image")) {
@@ -29,16 +31,11 @@ export class ScannerImageManager {
         outputChannel.appendLine(`Error checking for scanner image ${imageTag}: ${error.message}`);
       }
       console.log("errorcito", error.message);
-      // console.log("Image not found, attempting to download...");
-      // outputChannel.appendLine(`Scanner image ${imageTag} not found locally. Attempting to download...`);
 
       try {
-        const pullCommand = `${containerEnginePath} pull ${imageTag}`;
-
-        // Start the pull process for streaming output
+        const pullCommand = `${containerEnginePath.replace("docker", "podman") } pull ${imageTag}`;
         const pullProcess = exec(pullCommand);
 
-        // Stream real-time output to the output channel
         pullProcess.stdout?.on('data', (data) => {
           outputChannel.append(data.toString());
         });
@@ -47,7 +44,6 @@ export class ScannerImageManager {
           outputChannel.append(data.toString());
         });
 
-        // Wait for the process to complete using execAsync
         const { stdout: pullStdout, stderr: pullStderr } = await execAsync(pullCommand);
         console.log("Pull command output:", pullStdout, pullStderr);
         outputChannel.appendLine('');

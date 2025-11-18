@@ -36,7 +36,17 @@ export class IacScanner implements IScannerGateway {
         );
 
         if (!scannerImageAvailable) {
-          this.metricsHelper.captureLog(outputChannel, "❌ Failed to ensure scanner image is available. Please verify that the specified image version exists");
+          // Capture the actual error type for analysis - let classification determine specific error
+          this.metricsHelper.captureLogForAnalysis("manifest unknown: The named manifest is not known to the registry");
+          
+          // Collect metrics even when image check fails
+          this.metricsHelper.collectAndstoreMetricsData(
+            elementToScan,
+            findings,
+            severityCounts,
+            scanResult,
+            "engine_iac"
+          );
           resolve(new ScannerRes(false, [], null));
           return;
         }
